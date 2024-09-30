@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Task Manager</h1>
+    <form action="{{ url_for('add_task') }}" method="post">
+        <input type="text" name="title" placeholder="Task Title" required>
+        <textarea name="description" placeholder="Task Description"></textarea>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <ul id="tasks">
+    {% for task in tasks %}
+        <li>
+            <form action="{{ url_for('update_task', task_id=task.id) }}" method="post" style="display:inline;">
+                <input type="text" name="title" value="{{ task.title }}">
+                <textarea name="description">{{ task.description }}</textarea>
+                <input type="checkbox" name="completed" {{ 'checked' if task.completed }} onchange="this.form.submit()">
+                <button type="submit">Update</button>
+            </form>
+            <form action="{{ url_for('delete_task', task_id=task.id) }}" method="post" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('task_update', function(msg) {
+            var taskList = document.getElementById('tasks');
+            var task = document.createElement('li');
+            task.innerHTML = `<form ...>...</form>`; // Construct your form here similar to the template
+            taskList.appendChild(task);
+        });
+        socket.on('task_delete', function(msg) {
+            var taskElement = document.querySelector(`[action$="${msg.id}"]`).parentNode;
+            taskElement.remove();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Task Manager</h1>
+<form id="taskForm" method="POST" action="{{ url_for('add_task') }}">
+    <input type="text" name="title" placeholder="Title" required>
+    <input type="text" name="description" placeholder="Description">
+    <button type="submit">Add Task</button>
+</form>
+<ul id="tasks">
+    {% for task in tasks %}
+    <li>
+        <span style="text-decoration: {{ 'line-through' if task.completed else 'none' }}">{{ task.title }}</span>
+        <button onclick="updateTask({{ task.id }})">Update</button>
+        <button onclick="deleteTask({{ task.id }})">Delete</button>
+        <input type="checkbox" onchange="updateTask({{ task.id }})" {{ 'checked' if task.completed else '' }}>
+    </li>
+    {% endfor %}
+</ul>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+<script src="/static/scripts.js"></script>
+{% endblock %}
